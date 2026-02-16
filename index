@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Libreria prompt: ricerca, tag, copia rapida, preferiti e link condivisibili.">
+<title>Prompt Operativi – Libreria</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#F3F4F6;
+  --card:#FFFFFF;
+  --text:#0F172A;
+  --muted:#64748B;
+  --accent:#D97706;      /* Pungiglione */
+  --accent-soft:#FDE68A; /* Pungiglione soft */
+  --border:#E5E7EB;
+  --radius:16px;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
+}
+
+*{box-sizing:border-box}
+html:focus-within{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+}
+a{ color:inherit; text-decoration:none; }
+:focus-visible{ outline:2px solid rgba(217,119,6,.55); outline-offset:2px; }
+
+/* ===== NAVBAR ===== */
+.topnav{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  background:rgba(255,255,255,.92);
+  backdrop-filter: blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.topbar{
+  height:4px;
+  background:linear-gradient(90deg, var(--accent), #F59E0B, #FBBF24);
+}
+.nav-inner{
+  max-width:1100px;
+  margin:0 auto;
+  padding:12px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  position:relative;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:800;
+  font-size:14px;
+  letter-spacing:.2px;
+  color:var(--text);
+}
+.brand-mark{
+  width:12px;height:12px;
+  border-radius:4px;
+  background:var(--accent);
+}
+.nav-links{
+  display:flex;
+  gap:18px;
+  align-items:center;
+}
+.nav-links a{
+  text-decoration:none;
+  color:#334155;
+  font-weight:650;
+  font-size:13px;
+  padding:6px 0;
+  position:relative;
+}
+.nav-links a:hover{color:var(--accent)}
+.nav-links a.active{color:var(--accent)}
+.nav-links a.active::after{
+  content:"";
+  position:absolute;
+  left:0; bottom:-6px;
+  width:100%; height:2px;
+  background:var(--accent);
+  border-radius:2px;
+}
+.nav-toggle{
+  display:none;
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:12px;
+  padding:8px 10px;
+  font-size:18px;
+  cursor:pointer;
+}
+@media (max-width:860px){
+  .nav-toggle{display:block}
+  .nav-links{
+    display:none;
+    position:absolute;
+    right:20px;
+    top:56px;
+    flex-direction:column;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:12px;
+    box-shadow:0 12px 24px rgba(0,0,0,.10);
+    min-width:220px;
+    align-items:flex-start;
+    gap:12px;
+    z-index:1200;
+  }
+  .nav-links.show{display:flex}
+}
+
+/* ===== PAGE ===== */
+header{
+  max-width:1100px;
+  margin:0 auto;
+  padding:28px 20px 18px;
+}
+h1{
+  margin:0 0 6px;
+  font-size:32px;
+  font-weight:800;
+  letter-spacing:-0.2px;
+}
+.subtitle{color:var(--muted);margin:0;max-width:90ch}
+
+.toolbar{
+  margin-top:18px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.btn{
+  border:1px solid var(--border);
+  background:#fff;
+  padding:8px 14px;
+  border-radius:999px;
+  font-size:13px;
+  cursor:pointer;
+  text-decoration:none;
+  color:var(--text);
+  transition:.2s ease;
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  user-select:none;
+  white-space:nowrap;
+}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.active{
+  background:var(--accent-soft);
+  border-color:var(--accent);
+  color:#92400E;
+  font-weight:700;
+}
+.btn.primary{
+  background:var(--accent-soft);
+  border-color:var(--accent);
+  color:#92400E;
+  font-weight:800;
+}
+.btn.danger:hover{border-color:#ef4444;color:#ef4444}
+
+.search{
+  flex:1 1 280px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 14px;
+  min-width:220px;
+}
+.search input{
+  border:0;
+  outline:0;
+  width:100%;
+  font-size:14px;
+  background:transparent;
+  color:var(--text);
+}
+
+.tagbar{
+  margin-top:14px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.chip{
+  font-size:12px;
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#fff;
+  cursor:pointer;
+  transition:.2s ease;
+}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip[data-active="true"]{
+  background:var(--accent-soft);
+  border-color:var(--accent);
+  color:#92400E;
+  font-weight:700;
+}
+
+.meta{
+  margin-top:12px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+main{
+  max-width:1100px;
+  margin:0 auto;
+  padding:16px 20px 40px;
+  display:grid;
+  gap:18px;
+}
+
+.prompt-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:22px;
+  transition:.2s ease;
+}
+.prompt-card:hover{border-color:var(--accent)}
+.prompt-head h2{
+  margin:0;
+  font-size:20px;
+  font-weight:800;
+}
+.badges{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.badge{
+  background:var(--accent-soft);
+  color:#92400E;
+  padding:4px 10px;
+  font-size:12px;
+  border-radius:999px;
+  font-weight:700;
+}
+.category{margin-top:6px;font-size:13px;color:var(--muted)}
+.description{margin-top:14px;color:var(--text);max-width:95ch}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.actions .btn{padding:7px 12px;font-size:12px}
+
+/* ✅ Modifica/Elimina “puliti”: compaiono solo su hover/focus/details open */
+.actions .btn[data-editbtn],
+.actions .btn[data-delbtn]{
+  display:none;
+}
+.prompt-card:hover .actions .btn[data-editbtn],
+.prompt-card:hover .actions .btn[data-delbtn],
+.prompt-card:focus-within .actions .btn[data-editbtn],
+.prompt-card:focus-within .actions .btn[data-delbtn]{
+  display:inline-flex;
+}
+.prompt-card details[open] ~ .actions .btn[data-editbtn],
+.prompt-card details[open] ~ .actions .btn[data-delbtn]{
+  display:inline-flex;
+}
+/* (fallback: se il browser non supporta selettori “~” in quell’ordine, ci pensiamo via JS quando apri details) */
+
+details{
+  margin-top:16px;
+  border-top:1px solid var(--border);
+  padding-top:12px;
+}
+summary{
+  cursor:pointer;
+  font-weight:800;
+  color:var(--accent);
+  font-size:14px;
+}
+pre{
+  margin-top:12px;
+  background:#F9FAFB;
+  border:1px solid var(--border);
+  padding:14px;
+  border-radius:12px;
+  font-size:13px;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+.hidden{display:none !important}
+
+.toast{
+  position:fixed;
+  bottom:18px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#fff;
+  border:1px solid var(--border);
+  padding:10px 16px;
+  border-radius:999px;
+  font-size:13px;
+  display:none;
+  z-index:3000;
+  box-shadow:0 10px 24px rgba(0,0,0,.10);
+}
+
+/* ===== MODALE: Aggiungi/Modifica prompt ===== */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(2,6,23,.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:2500;
+}
+.modal.hidden{display:none !important}
+.modal__panel{
+  width:min(920px, 100%);
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:18px;
+  box-shadow:0 18px 50px rgba(0,0,0,.25);
+  overflow:hidden;
+}
+.modal__head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 14px 10px;
+  border-bottom:1px solid var(--border);
+}
+.modal__head h2{
+  margin:0;
+  font-size:16px;
+  letter-spacing:.2px;
+}
+.modal__grid{
+  padding:14px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+}
+@media (max-width:820px){
+  .modal__grid{grid-template-columns:1fr}
+}
+.modal__label{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  color:#475569;
+  margin:0 0 6px;
+}
+.modal__input,.modal__textarea{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:10px;
+  font-size:14px;
+  outline:none;
+  font-family:var(--sans);
+}
+.modal__textarea{min-height:170px; resize:vertical}
+.modal__help{
+  margin-top:6px;
+  font-size:12px;
+  color:var(--muted);
+}
+.modal__actions{
+  padding:12px 14px 14px;
+  border-top:1px solid var(--border);
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  background:#fafafa;
+}
+</style>
+</head>
+
+<body>
+
+<nav class="topnav">
+  <div class="topbar"></div>
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <span>Pungiglione · Sistema Comunicazione</span>
+    </div>
+
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Libreria</a>
+      <a href="guida.html">Guida</a>
+      <a href="sistema-decisionale.html">Sistema</a>
+      <a href="manifesto.html">Manifesto</a>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="Apri menu">☰</button>
+  </div>
+</nav>
+
+<header>
+  <h1>Prompt Operativi – Libreria</h1>
+  <p class="subtitle">Ricerca, tag (#), copia rapida, preferiti e link condivisibili. Stile coerente con l’identità del Pungiglione.</p>
+
+  <div class="toolbar">
+    <a class="btn" href="guida.html">📘 Guida al processo</a>
+
+    <div class="search" aria-label="Ricerca">
+      🔎
+      <input id="q" type="search" placeholder="Cerca nei prompt…" autocomplete="off">
+    </div>
+
+    <button class="btn primary" id="addPrompt" type="button">➕ Aggiungi prompt</button>
+    <button class="btn" id="favView" type="button">⭐ Solo preferiti</button>
+    <button class="btn" id="expandAll" type="button">⬇️ Espandi</button>
+    <button class="btn" id="collapseAll" type="button">⬆️ Comprimi</button>
+    <button class="btn" id="copyAll" type="button">📋 Copia tutti</button>
+    <button class="btn" id="resetAll" type="button">♻️ Reset</button>
+  </div>
+
+  <div class="tagbar" id="tagbar" aria-label="Filtri per tag"></div>
+  <div class="meta" id="count"></div>
+</header>
+
+<main id="cards">
+
+  <!-- ======= I TUOI PROMPT (base) ======= -->
+  <!-- NOTA: NON serve aggiungere a mano “Modifica”. Lo script la inserisce su tutte le card. -->
+
+  <section class="prompt-card" id="trivia-con-suggerimenti"
+  data-tags="#Operativo #Giochi #Didattica #Interattivo"
+  data-keywords="trivia domande quiz suggerimenti indizi categorie diversificate ragionamento conoscenza difficili progressive hint">
+    <div class="prompt-head">
+      <h2>Generatore di Trivia con Suggerimenti Progressivi</h2>
+      <div class="badges">
+        <span class="badge">Interattivo</span>
+        <span class="badge">Quiz</span>
+      </div>
+      <div class="category">Giochi & Didattica</div>
+    </div>
+
+    <p class="description">
+      Crea domande di trivia su categorie diverse con una serie di suggerimenti sempre più specifici, senza rivelare subito la risposta.
+    </p>
+
+    <div class="actions">
+      <button class="btn" type="button" data-copybtn>📋 Copia</button>
+      <button class="btn" type="button" data-linkbtn>🔗 Link</button>
+      <button class="btn" type="button" data-favbtn>⭐ Preferito</button>
+    </div>
+
+    <details>
+      <summary>Prompt completo · copiabile</summary>
+      <pre data-copyblock="true">Genera domande di trivia su vari argomenti e fornisci suggerimenti per aiutare gli utenti ad arrivare alla risposta corretta. Seleziona da un insieme diversificato di categorie e crea domande che testino la conoscenza o le capacità di ragionamento dell'utente. Offri una serie di suggerimenti sempre più specifici per guidare gli utenti verso la soluzione. Assicurati che le domande siano impegnative e che i suggerimenti forniscano informazioni sufficienti per aiutare l'utente senza rivelare la risposta troppo facilmente.</pre>
+    </details>
+  </section>
+
+  <section class="prompt-card" id="brief-identita-marca-olistica"
+  data-tags="#Strategia #Branding #Design #Identità"
+  data-keywords="brief design identità di marca olistica brand naming logo colori tipografia stile visivo tono di voce personalità sostenibilità moda etica">
+    <div class="prompt-head">
+      <h2>Creatore di Brief per Identità di Marca Olistica</h2>
+      <div class="badges">
+        <span class="badge">Brand Strategy</span>
+        <span class="badge">Sistema completo</span>
+      </div>
+      <div class="category">Strategia</div>
+    </div>
+
+    <p class="description">
+      Genera un brief dettagliato per costruire un’identità di marca completa e coerente: naming, logo, palette, tipografia, stile visivo, tono di voce e personalità.
+    </p>
+
+    <div class="actions">
+      <button class="btn" type="button" data-copybtn>📋 Copia</button>
+      <button class="btn" type="button" data-linkbtn>🔗 Link</button>
+      <button class="btn" type="button" data-favbtn>⭐ Preferito</button>
+    </div>
+
+    <details>
+      <summary>Prompt completo · copiabile</summary>
+      <pre data-copyblock="true">Il tuo compito è creare un brief di design completo per un'identità di marca olistica basato sulle specifiche fornite. L'identità di marca dovrebbe comprendere vari elementi come suggerimenti per il nome del brand, logo, tavolozza di colori, tipografia, stile visivo, tono di voce e personalità complessiva del brand. Assicurati che tutti gli elementi funzionino insieme armoniosamente per creare un'esperienza di marca coerente e memorabile che comunichi efficacemente i valori, la missione e la proposta di valore unica del brand al suo pubblico di riferimento. Sii dettagliato e completo e fornisci abbastanza dettagli specifici affinché qualcuno possa creare un'identità di marca veramente unica.
+
+Specifiche del brand:
+Questo è un brand che si concentra sulla creazione di abbigliamento e accessori di alta qualità e alla moda utilizzando materiali ecologici e metodi di produzione etica. Il brand si rivolge a consumatori consapevoli dell'ambiente di età compresa tra 25-40 anni che apprezzano la moda, la sostenibilità e la responsabilità sociale.
+
+L'identità del brand dovrebbe raggiungere i seguenti obiettivi:
+1. Riflettere l'impegno del brand verso la sostenibilità, le pratiche etiche e la gestione ambientale.
+2. Attirare il pubblico di riferimento trasmettendo un senso di stile, qualità e tendenza.
+3. Differenziare il brand dai concorrenti nel mercato della moda sostenibile.
+4. Creare una forte connessione emotiva con i consumatori e ispirarli a fare scelte più ecologiche.</pre>
+    </details>
+  </section>
+
+  <section class="prompt-card" id="indovinelli-guida-step-by-step"
+  data-tags="#Operativo #Giochi #Logica #Interattivo"
+  data-keywords="indovinello intelligente logica guida passo dopo passo suggerimenti progressivi soluzione spiegazione attenzione ai dettagli">
+    <div class="prompt-head">
+      <h2>Generatore di Indovinelli con Guida Step-by-Step</h2>
+      <div class="badges">
+        <span class="badge">Logica</span>
+        <span class="badge">Progressivo</span>
+      </div>
+      <div class="category">Giochi & Ragionamento</div>
+    </div>
+
+    <p class="description">
+      Genera un indovinello impegnativo ma risolvibile, poi accompagna l’utente con suggerimenti progressivi e una guida passo dopo passo fino alla soluzione finale.
+    </p>
+
+    <div class="actions">
+      <button class="btn" type="button" data-copybtn>📋 Copia</button>
+      <button class="btn" type="button" data-linkbtn>🔗 Link</button>
+      <button class="btn" type="button" data-favbtn>⭐ Preferito</button>
+    </div>
+
+    <details>
+      <summary>Prompt completo · copiabile</summary>
+      <pre data-copyblock="true">Genera un indovinello intelligente e fornisci una guida passo dopo passo per aiutare l'utente ad arrivare alle soluzioni corrette. L'indovinello dovrebbe essere impegnativo ma risolvibile con il pensiero logico e l'attenzione ai dettagli. Dopo aver presentato ogni indovinello, offri una serie di suggerimenti o domande che guidano progressivamente l'utente verso la risposta. Assicurati che i suggerimenti non siano troppo ovvi ma forniscano comunque informazioni sufficienti per guidare il processo di pensiero dell'utente. Infine, rivela la soluzione e fornisci una breve spiegazione di come l'indovinello può essere risolto utilizzando i suggerimenti forniti.</pre>
+    </details>
+  </section>
+
+  <section class="prompt-card" id="testo-a-json-tabella"
+  data-tags="#Operativo #Data #JSON #Strutturazione"
+  data-keywords="convertire testo non strutturato json tabella entità attributi categorie estrazione dati parsing struttura oggetto json">
+    <div class="prompt-head">
+      <h2>Convertitore Testo → Tabella JSON Strutturata</h2>
+      <div class="badges">
+        <span class="badge">Data Extraction</span>
+        <span class="badge">JSON</span>
+      </div>
+      <div class="category">Strutturazione dati</div>
+    </div>
+
+    <p class="description">
+      Trasforma un testo narrativo non strutturato in una tabella organizzata in formato JSON, identificando entità principali e attributi.
+    </p>
+
+    <div class="actions">
+      <button class="btn" type="button" data-copybtn>📋 Copia</button>
+      <button class="btn" type="button" data-linkbtn>🔗 Link</button>
+      <button class="btn" type="button" data-favbtn>⭐ Preferito</button>
+    </div>
+
+    <details>
+      <summary>Prompt completo · copiabile</summary>
+      <pre data-copyblock="true">Il tuo compito è prendere il testo non strutturato fornito e convertirlo in un formato di tabella ben organizzato utilizzando JSON. Identifica le entità principali, gli attributi o le categorie menzionati nel testo e usali come chiavi nell'oggetto JSON. Quindi, estrai le informazioni rilevanti dal testo e popola i valori corrispondenti nell'oggetto JSON. Assicurati che i dati siano rappresentati accuratamente e correttamente formattati all'interno della struttura JSON. La tabella JSON risultante dovrebbe fornire una panoramica chiara e strutturata delle informazioni presentate nel testo originale.
+
+Testo di esempio:
+Silvermist Hollow, un affascinante villaggio, era la casa di un gruppo straordinario di individui. Tra loro c'era il Dr. Liam Patel, un neurochirurgo di 45 anni insegnato a Yale che ha rivoluzionato le tecniche chirurgiche presso il centro medico regionale. Olivia Chen, a 28 anni, era un'innovativa architetta dell'UC Berkeley che ha trasformato il paesaggio del villaggio con i suoi design sostenibili e affascinanti. Il teatro locale era onorato dalle affascinanti sinfonie di Ethan Kovacs, un musicista e compositore di 72 anni addestrato alla Juilliard. Isabella Torres, una chef autodidatta con una passione per gli ingredienti a km zero, ha creato una sensazione culinaria con il suo ristorante farm-to-table, che è diventato una destinazione imprescindibile per gli amanti del cibo. Questi individui straordinari, ognuno con i loro talenti distinti, hanno contribuito al vivace arazzo della vita a Silvermist Hollow.</pre>
+    </details>
+  </section>
+
+  <!-- 👇 Qui sotto puoi lasciare TUTTI gli altri prompt esattamente come li avevi -->
+  <!-- (struttura-base, calendario-editoriale, instagram, slogan, tono, control code, strumenti giusti, custode del senso, ecc.) -->
+
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite">Copiato</div>
+
+<!-- ===== MODALE: AGGIUNGI / MODIFICA ===== -->
+<div class="modal hidden" id="promptModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal__panel">
+    <div class="modal__head">
+      <h2 id="modalTitle">Aggiungi prompt</h2>
+      <button class="btn" type="button" id="closeModal">✕</button>
+    </div>
+
+    <div class="modal__grid">
+      <!-- hidden state -->
+      <input type="hidden" id="p_mode" value="add">
+      <input type="hidden" id="p_original_id" value="">
+
+      <div>
+        <label class="modal__label">ID (opzionale)</label>
+        <input class="modal__input" id="p_id" placeholder="es. revisione-testuale" />
+        <div class="modal__help">Serve per il link (#id). Se lo lasci vuoto lo genero dal titolo.</div>
+      </div>
+
+      <div>
+        <label class="modal__label">Titolo *</label>
+        <input class="modal__input" id="p_title" placeholder="Es. Revisione testo inclusivo" />
+      </div>
+
+      <div>
+        <label class="modal__label">Tag (con #, separati da spazio)</label>
+        <input class="modal__input" id="p_tags" placeholder="#Operativo #Etica #Copy" />
+      </div>
+
+      <div>
+        <label class="modal__label">Categoria (facoltativa)</label>
+        <input class="modal__input" id="p_category" placeholder="Es. Operativo / Strategia / Data" />
+      </div>
+
+      <div style="grid-column:1/-1;">
+        <label class="modal__label">Descrizione breve</label>
+        <input class="modal__input" id="p_desc" placeholder="1 riga: a cosa serve" />
+      </div>
+
+      <div style="grid-column:1/-1;">
+        <label class="modal__label">Testo prompt *</label>
+        <textarea class="modal__textarea" id="p_text" placeholder="Incolla qui il prompt completo..."></textarea>
+      </div>
+
+      <div style="grid-column:1/-1;">
+        <label class="modal__label">Keywords (facoltativo)</label>
+        <input class="modal__input" id="p_keywords" placeholder="parole chiave per ricerca (facoltativo)" />
+        <div class="modal__help">Se lo lasci vuoto, uso titolo+tag+categoria.</div>
+      </div>
+    </div>
+
+    <div class="modal__actions">
+      <button class="btn danger" type="button" id="deletePrompt" style="display:none;">🗑️ Elimina</button>
+      <button class="btn" type="button" id="savePrompt">💾 Salva</button>
+      <button class="btn" type="button" id="cancelPrompt">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const q = document.getElementById('q');
+  const toast = document.getElementById('toast');
+  const tagbar = document.getElementById('tagbar');
+  const countEl = document.getElementById('count');
+
+  // NAV: toggle + active
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  if(navToggle && navLinks){
+    navToggle.addEventListener('click', ()=> navLinks.classList.toggle('show'));
+    const current = (location.pathname.split('/').pop() || 'index.html');
+    navLinks.querySelectorAll('a').forEach(a=>{
+      if(a.getAttribute('href') === current) a.classList.add('active');
+    });
+  }
+
+  const LS_FAV = 'pungi_prompt_favs_v1';
+  const LS_CUSTOM = 'pungi_custom_prompts_v1';      // prompt creati dall’utente
+  const LS_OVR = 'pungi_prompt_overrides_v1';       // override su prompt base
+
+  const favs = new Set(JSON.parse(localStorage.getItem(LS_FAV) || '[]'));
+  const selectedTags = new Set();
+  let onlyFavs = false;
+
+  function getCards(){
+    return Array.from(document.querySelectorAll('#cards .prompt-card'));
+  }
+
+  function showToast(msg){
+    toast.textContent = msg || 'Fatto';
+    toast.style.display = 'block';
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>toast.style.display='none', 1200);
+  }
+
+  function normalize(s){
+    return (s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'');
+  }
+
+  async function copyText(text){
+    try{
+      await navigator.clipboard.writeText(text);
+    }catch(e){
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  }
+
+  function pageBaseUrl(){
+    return location.href.split('#')[0];
+  }
+
+  function escapeHTML(str){
+    return (str || '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;');
+  }
+
+  function slugify(s){
+    return (s || '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g,'')
+      .replace(/\s+/g,'-')
+      .replace(/-+/g,'-')
+      .slice(0,70) || ('prompt-' + Math.random().toString(16).slice(2));
+  }
+
+  function loadJSON(key, fallback){
+    try{ return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+    catch{ return fallback; }
+  }
+  function saveJSON(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  // ----- TAGS (rebuild) -----
+  const allTags = new Map();
+
+  function rebuildAllTags(){
+    allTags.clear();
+    getCards().forEach(card=>{
+      const tags = (card.dataset.tags || '').split(/\s+/).map(t=>t.trim()).filter(Boolean);
+      tags.forEach(t=> allTags.set(t, (allTags.get(t)||0)+1));
+    });
+  }
+
+  function renderTagbar(){
+    tagbar.innerHTML = '';
+    Array.from(allTags.keys()).sort((a,b)=>a.localeCompare(b,'it')).forEach(tag=>{
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip';
+      chip.textContent = `${tag} (${allTags.get(tag)})`;
+      chip.setAttribute('data-active', selectedTags.has(tag) ? 'true' : 'false');
+      chip.addEventListener('click', ()=>{
+        if(selectedTags.has(tag)) selectedTags.delete(tag);
+        else selectedTags.add(tag);
+        renderTagbar();
+        applyFilter();
+      });
+      tagbar.appendChild(chip);
+    });
+  }
+
+  function cardMatchesTags(card){
+    if(selectedTags.size === 0) return true;
+    const tags = new Set((card.dataset.tags||'').split(/\s+/).filter(Boolean));
+    for(const t of selectedTags){
+      if(!tags.has(t)) return false;
+    }
+    return true;
+  }
+
+  function applyFilter(){
+    const term = normalize(q.value.trim());
+    const cards = getCards();
+    let visible = 0;
+
+    cards.forEach(card=>{
+      const hay = normalize(card.textContent + ' ' + (card.dataset.keywords||'') + ' ' + (card.dataset.tags||''));
+      const okText = term === '' || hay.includes(term);
+      const okTags = cardMatchesTags(card);
+      const okFav = !onlyFavs || favs.has(card.id);
+      const ok = okText && okTags && okFav;
+
+      card.classList.toggle('hidden', !ok);
+      if(ok) visible++;
+    });
+
+    const parts = [];
+    parts.push(`<strong>${visible}</strong> / ${cards.length} prompt visibili`);
+    if(q.value.trim()) parts.push(`Ricerca: “${q.value.trim()}”`);
+    if(selectedTags.size) parts.push(`Tag: ${Array.from(selectedTags).join(' · ')}`);
+    if(onlyFavs) parts.push(`Vista: solo preferiti`);
+    countEl.innerHTML = parts.join(' — ');
+  }
+
+  // ====== Modale: Add/Edit/Delete ======
+  const modal = document.getElementById('promptModal');
+  const addPromptBtn = document.getElementById('addPrompt');
+  const closeModalBtn = document.getElementById('closeModal');
+  const cancelBtn = document.getElementById('cancelPrompt');
+  const saveBtn = document.getElementById('savePrompt');
+  const deleteBtn = document.getElementById('deletePrompt');
+  const modalTitle = document.getElementById('modalTitle');
+
+  const fMode = document.getElementById('p_mode');
+  const fOriginalId = document.getElementById('p_original_id');
+  const fId = document.getElementById('p_id');
+  const fTitle = document.getElementById('p_title');
+  const fTags = document.getElementById('p_tags');
+  const fCategory = document.getElementById('p_category');
+  const fDesc = document.getElementById('p_desc');
+  const fText = document.getElementById('p_text');
+  const fKeywords = document.getElementById('p_keywords');
+
+  function openModal(){
+    modal.classList.remove('hidden');
+    setTimeout(()=> fTitle.focus(), 0);
+  }
+  function closeModal(){
+    modal.classList.add('hidden');
+  }
+  function clearForm(){
+    fMode.value = 'add';
+    fOriginalId.value = '';
+    fId.value = '';
+    fTitle.value = '';
+    fTags.value = '';
+    fCategory.value = '';
+    fDesc.value = '';
+    fText.value = '';
+    fKeywords.value = '';
+    deleteBtn.style.display = 'none';
+  }
+
+  function isCustomCard(card){
+    return card?.dataset?.custom === 'true';
+  }
+
+  function openAdd(){
+    clearForm();
+    modalTitle.textContent = 'Aggiungi prompt';
+    openModal();
+  }
+
+  function openEdit(card){
+    if(!card) return;
+    clearForm();
+    fMode.value = 'edit';
+    fOriginalId.value = card.id;
+
+    modalTitle.textContent = isCustomCard(card) ? 'Modifica prompt (Custom)' : 'Modifica prompt (Base)';
+    deleteBtn.style.display = isCustomCard(card) ? 'inline-flex' : 'none';
+
+    const title = card.querySelector('.prompt-head h2')?.textContent || '';
+    const category = card.querySelector('.category')?.textContent || '';
+    const desc = card.querySelector('.description')?.textContent || '';
+    const tags = card.dataset.tags || '';
+    const keywords = card.dataset.keywords || '';
+    const text = card.querySelector('[data-copyblock="true"]')?.textContent || '';
+
+    fId.value = card.id;              // default: id corrente
+    fTitle.value = title;
+    fCategory.value = category;
+    fDesc.value = desc;
+    fTags.value = tags.trim();
+    fKeywords.value = keywords.trim();
+    fText.value = text;
+
+    openModal();
+  }
+
+  if(addPromptBtn) addPromptBtn.addEventListener('click', openAdd);
+  if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+  if(cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+  if(modal){
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+    });
+  }
+
+  function buildCustomCard(p){
+    const id = p.id;
+    const title = escapeHTML(p.title || 'Prompt');
+    const category = escapeHTML(p.category || 'Custom');
+    const desc = escapeHTML(p.desc || '');
+    const tags = escapeHTML(p.tags || '#Custom');
+    const text = escapeHTML(p.text || '');
+
+    const section = document.createElement('section');
+    section.className = 'prompt-card';
+    section.id = id;
+    section.dataset.custom = 'true';
+    section.dataset.tags = tags;
+    section.dataset.keywords = (p.keywords && p.keywords.trim())
+      ? escapeHTML(p.keywords)
+      : escapeHTML(`${p.title||''} ${p.tags||''} ${p.category||''}`);
+
+    section.innerHTML = `
+      <div class="prompt-head">
+        <h2>${title}</h2>
+        <div class="badges">
+          <span class="badge">Custom</span>
+          <span class="badge">Salvato</span>
+        </div>
+        <div class="category">${category}</div>
+      </div>
+
+      ${desc ? `<p class="description">${desc}</p>` : `<p class="description">Prompt aggiunto manualmente.</p>`}
+
+      <div class="actions">
+        <button class="btn" type="button" data-copybtn>📋 Copia</button>
+        <button class="btn" type="button" data-linkbtn>🔗 Link</button>
+        <button class="btn" type="button" data-favbtn>⭐ Preferito</button>
+        <!-- Modifica/Elimina vengono aggiunti dallo script -->
+      </div>
+
+      <details>
+        <summary>Prompt completo · copiabile</summary>
+        <pre data-copyblock="true">${text}</pre>
+      </details>
+    `;
+    return section;
+  }
+
+  function loadCustom(){
+    return loadJSON(LS_CUSTOM, []);
+  }
+  function saveCustom(list){
+    saveJSON(LS_CUSTOM, list);
+  }
+
+  function loadOverrides(){
+    return loadJSON(LS_OVR, {});
+  }
+  function saveOverrides(obj){
+    saveJSON(LS_OVR, obj);
+  }
+
+  function applyOverridesToBase(){
+    const ovr = loadOverrides();
+    Object.keys(ovr).forEach(id=>{
+      const card = document.getElementById(id);
+      if(!card) return;
+      const p = ovr[id];
+
+      if(p.title) card.querySelector('.prompt-head h2').textContent = p.title;
+      if(p.category != null) card.querySelector('.category').textContent = p.category;
+      if(p.desc != null) card.querySelector('.description').textContent = p.desc;
+      if(p.tags != null) card.dataset.tags = p.tags;
+      if(p.keywords != null) card.dataset.keywords = p.keywords;
+      if(p.text != null) card.querySelector('[data-copyblock="true"]').textContent = p.text;
+    });
+  }
+
+  function ensureEditButtons(){
+    getCards().forEach(card=>{
+      const actions = card.querySelector('.actions');
+      if(!actions) return;
+
+      if(!actions.querySelector('[data-editbtn]')){
+        const b = document.createElement('button');
+        b.className = 'btn';
+        b.type = 'button';
+        b.setAttribute('data-editbtn','');
+        b.textContent = '✏️ Modifica';
+        actions.appendChild(b);
+      }
+
+      if(isCustomCard(card) && !actions.querySelector('[data-delbtn]')){
+        const d = document.createElement('button');
+        d.className = 'btn danger';
+        d.type = 'button';
+        d.setAttribute('data-delbtn','');
+        d.textContent = '🗑️ Elimina';
+        actions.appendChild(d);
+      }
+
+      // show edit buttons when details open (reliable)
+      const details = card.querySelector('details');
+      const editBtn = actions.querySelector('[data-editbtn]');
+      const delBtn = actions.querySelector('[data-delbtn]');
+      if(details){
+        details.addEventListener('toggle', ()=>{
+          const on = details.open;
+          if(editBtn) editBtn.style.display = on ? 'inline-flex' : '';
+          if(delBtn) delBtn.style.display = on ? 'inline-flex' : '';
+        });
+      }
+    });
+  }
+
+  function wireCard(card){
+    const copyBtn = card.querySelector('[data-copybtn]');
+    const linkBtn = card.querySelector('[data-linkbtn]');
+    const favBtn  = card.querySelector('[data-favbtn]');
+    const pre     = card.querySelector('[data-copyblock="true"]');
+    const editBtn = card.querySelector('[data-editbtn]');
+    const delBtn  = card.querySelector('[data-delbtn]');
+
+    if(copyBtn){
+      copyBtn.addEventListener('click', async ()=>{
+        await copyText((pre?.textContent || '').replace(/\s+$/,''));
+        showToast('✅ Copiato');
+      });
+    }
+
+    if(linkBtn){
+      linkBtn.addEventListener('click', async ()=>{
+        const url = `${pageBaseUrl()}#${card.id}`;
+        await copyText(url);
+        showToast('🔗 Link copiato');
+      });
+    }
+
+    if(favBtn){
+      const refreshFav = ()=>{
+        const isFav = favs.has(card.id);
+        favBtn.textContent = isFav ? '⭐ Salvato' : '⭐ Preferito';
+        favBtn.classList.toggle('active', isFav);
+      };
+      refreshFav();
+
+      favBtn.addEventListener('click', ()=>{
+        if(favs.has(card.id)) favs.delete(card.id);
+        else favs.add(card.id);
+        localStorage.setItem(LS_FAV, JSON.stringify(Array.from(favs)));
+        refreshFav();
+        applyFilter();
+        showToast('⭐ Preferiti aggiornati');
+      });
+    }
+
+    if(editBtn){
+      editBtn.addEventListener('click', ()=> openEdit(card));
+    }
+
+    if(delBtn){
+      delBtn.addEventListener('click', ()=>{
+        // delete custom
+        const list = loadCustom();
+        const next = list.filter(x=>x.id !== card.id);
+        saveCustom(next);
+        card.remove();
+        rebuildAllTags();
+        renderTagbar();
+        applyFilter();
+        showToast('🗑️ Eliminato');
+      });
+    }
+  }
+
+  function wireAllCards(){
+    getCards().forEach(wireCard);
+  }
+
+  // ----- Toolbar actions -----
+  document.getElementById('expandAll').addEventListener('click', ()=>{
+    document.querySelectorAll('details').forEach(d=>d.open = true);
+  });
+
+  document.getElementById('collapseAll').addEventListener('click', ()=>{
+    document.querySelectorAll('details').forEach(d=>d.open = false);
+  });
+
+  document.getElementById('copyAll').addEventListener('click', async ()=>{
+    const blocks = Array.from(document.querySelectorAll('[data-copyblock="true"]'))
+      .map(pre => pre.textContent.replace(/\s+$/,''))
+      .join('\n\n' + '-'.repeat(60) + '\n\n');
+    await copyText(blocks);
+    showToast('✅ Tutto copiato');
+  });
+
+  document.getElementById('resetAll').addEventListener('click', ()=>{
+    q.value = '';
+    selectedTags.clear();
+    onlyFavs = false;
+    document.getElementById('favView').classList.remove('active');
+    rebuildAllTags();
+    renderTagbar();
+    applyFilter();
+    showToast('♻️ Reset');
+  });
+
+  document.getElementById('favView').addEventListener('click', ()=>{
+    onlyFavs = !onlyFavs;
+    document.getElementById('favView').classList.toggle('active', onlyFavs);
+    applyFilter();
+  });
+
+  q.addEventListener('input', applyFilter);
+
+  // ----- Deep-link open -----
+  function openFromHash(){
+    const id = (location.hash || '').replace('#','').trim();
+    if(!id) return;
+    const card = document.getElementById(id);
+    if(card){
+      const d = card.querySelector('details');
+      if(d) d.open = true;
+      card.scrollIntoView({block:'start', behavior:'smooth'});
+    }
+  }
+  window.addEventListener('hashchange', openFromHash);
+
+  // ====== Custom prompts: render ======
+  function renderCustomPrompts(){
+    const list = loadCustom();
+    const container = document.getElementById('cards');
+
+    list.forEach(p=>{
+      if(document.getElementById(p.id)) return; // evita duplicati
+      const card = buildCustomCard(p);
+      container.appendChild(card);
+    });
+  }
+
+  // ====== Save (Add/Edit) ======
+  function validateRequired(){
+    const title = fTitle.value.trim();
+    const text = fText.value.trim();
+    if(!title || !text){
+      showToast('⚠️ Titolo e testo sono obbligatori');
+      return false;
+    }
+    return true;
+  }
+
+  function collectForm(){
+    const title = fTitle.value.trim();
+    const text = fText.value.trim();
+    const tags = (fTags.value.trim() || '#Custom').replace(/\s+/g,' ');
+    const category = (fCategory.value.trim() || (fMode.value==='add' ? 'Custom' : ''));
+    const desc = fDesc.value.trim();
+    const keywords = fKeywords.value.trim();
+
+    const idFromField = fId.value.trim();
+    const id = slugify(idFromField || title);
+
+    return { id, title, tags, category, desc, text, keywords };
+  }
+
+  if(saveBtn){
+    saveBtn.addEventListener('click', ()=>{
+      if(!validateRequired()) return;
+
+      const mode = fMode.value;
+      const originalId = fOriginalId.value.trim();
+      const data = collectForm();
+
+      // ADD NEW (Custom)
+      if(mode === 'add'){
+        if(document.getElementById(data.id)){
+          showToast('⚠️ ID già esistente (cambialo)');
+          return;
+        }
+        const list = loadCustom();
+        if(list.some(x=>x.id === data.id)){
+          showToast('⚠️ ID già salvato (cambialo)');
+          return;
+        }
+
+        list.push(data);
+        saveCustom(list);
+
+        const card = buildCustomCard(data);
+        document.getElementById('cards').appendChild(card);
+
+        ensureEditButtons();
+        wireCard(card);
+
+        closeModal();
+        clearForm();
+
+        rebuildAllTags();
+        renderTagbar();
+        applyFilter();
+        showToast('✅ Prompt aggiunto');
+        return;
+      }
+
+      // EDIT
+      const card = document.getElementById(originalId);
+      if(!card){
+        showToast('⚠️ Non trovo il prompt da modificare');
+        return;
+      }
+
+      // Se cambia ID: serve evitare collisioni
+      const idChanged = (data.id !== originalId);
+      if(idChanged && document.getElementById(data.id)){
+        showToast('⚠️ Esiste già un prompt con questo ID');
+        return;
+      }
+
+      if(isCustomCard(card)){
+        // edit custom -> aggiorna storage
+        const list = loadCustom();
+        const idx = list.findIndex(x=>x.id === originalId);
+        if(idx === -1){
+          showToast('⚠️ Prompt custom non trovato in archivio');
+          return;
+        }
+        list[idx] = data;
+        saveCustom(list);
+
+        // aggiorna DOM (ricreo per pulizia)
+        const newCard = buildCustomCard(data);
+        card.replaceWith(newCard);
+
+        ensureEditButtons();
+        wireCard(newCard);
+
+        closeModal();
+        clearForm();
+
+        rebuildAllTags();
+        renderTagbar();
+        applyFilter();
+        showToast('✅ Modificato');
+        return;
+      }
+
+      // edit base -> salva override
+      const ovr = loadOverrides();
+      ovr[originalId] = {
+        title: data.title,
+        tags: data.tags,
+        category: data.category || (card.querySelector('.category')?.textContent || ''),
+        desc: data.desc,
+        text: data.text,
+        keywords: data.keywords || `${data.title} ${data.tags} ${data.category}`
+      };
+      // se cambia ID su base: sconsigliato (rompe gli anchor), quindi lo blocco
+      if(idChanged){
+        showToast('⚠️ Per i prompt base non cambiare l’ID (serve per i link).');
+        return;
+      }
+      saveOverrides(ovr);
+
+      applyOverridesToBase();
+
+      closeModal();
+      clearForm();
+
+      rebuildAllTags();
+      renderTagbar();
+      applyFilter();
+      showToast('✅ Modificato (override salvato)');
+    });
+  }
+
+  // DELETE from modal (solo custom)
+  if(deleteBtn){
+    deleteBtn.addEventListener('click', ()=>{
+      const id = fOriginalId.value.trim();
+      const card = document.getElementById(id);
+      if(!card || !isCustomCard(card)){
+        showToast('⚠️ Puoi eliminare solo prompt Custom');
+        return;
+      }
+      const list = loadCustom();
+      const next = list.filter(x=>x.id !== id);
+      saveCustom(next);
+      card.remove();
+
+      closeModal();
+      clearForm();
+
+      rebuildAllTags();
+      renderTagbar();
+      applyFilter();
+      showToast('🗑️ Eliminato');
+    });
+  }
+
+  // open modal from edit buttons is wired in wireCard()
+
+  // init
+  applyOverridesToBase();    // 1) applica override sui base
+  renderCustomPrompts();     // 2) aggiunge i custom
+  ensureEditButtons();       // 3) aggiunge Modifica/Elimina dove serve
+  wireAllCards();            // 4) wire eventi
+
+  rebuildAllTags();
+  renderTagbar();
+  applyFilter();
+  openFromHash();
+
+  // open modal
+  if(addPromptBtn) addPromptBtn.addEventListener('click', openAdd);
+
+})();
+</script>
+
+</body>
+</html>
